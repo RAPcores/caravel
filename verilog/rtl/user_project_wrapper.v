@@ -157,26 +157,26 @@ module top (
     input   user_clock2
 );
 
-    assign CLK = wb_clk_i; // input
-    assign SCK = io_in[1]; // input
-    assign CS = io_in[2];
-    assign COPI = io_in[3];
-    assign CIPO = io_out[4];
+    wire CLK = wb_clk_i; // input
+    wire SCK = io_in[1]; // input
+    wire CS = io_in[2];
+    wire COPI = io_in[3];
+    wire CIPO = io_out[4];
 
     //`ifdef ULTIBRIDGE
-    assign CHARGEPUMP = io_out[5];
-    assign analog_cmp1 = io_in[6];
-    assign analog_out1 = io_out[7];
-    assign analog_cmp2 = io_in[8];
-    assign analog_out2 = io_out[9];
-    assign PHASE_A1 = io_out[10];
-    assign PHASE_A2 = io_out[11];
-    assign PHASE_B1 = io_out[12];
-    assign PHASE_B2 = io_out[13];
-    assign PHASE_A1_H = io_out[14];
-    assign PHASE_A2_H = io_out[15];
-    assign PHASE_B1_H = io_out[16];
-    assign PHASE_B2_H = io_out[17];
+    wire CHARGEPUMP = io_out[5];
+    wire analog_cmp1 = io_in[6];
+    wire analog_out1 = io_out[7];
+    wire analog_cmp2 = io_in[8];
+    wire analog_out2 = io_out[9];
+    wire PHASE_A1 = io_out[10];
+    wire PHASE_A2 = io_out[11];
+    wire PHASE_B1 = io_out[12];
+    wire PHASE_B2 = io_out[13];
+    wire PHASE_A1_H = io_out[14];
+    wire PHASE_A2_H = io_out[15];
+    wire PHASE_B1_H = io_out[16];
+    wire PHASE_B2_H = io_out[17];
     `ifdef QUAD_ENC
         input [`QUAD_ENC:1] ENC_B,
         input [`QUAD_ENC:1] ENC_A,
