@@ -14,6 +14,23 @@
  *-------------------------------------------------------------
  */
 
+
+// Enable SPI Interface
+`define SPI_INTERFACE
+
+// Enable Buffer DTR pin
+//`define BUFFER_DTR
+
+// Enable Move Done Pin
+//`define MOVE_DONE
+
+// Motor Definitions
+//`define DUAL_HBRIDGE 1
+`define ULTIBRIDGE 1
+
+// Encoder Count
+`define QUAD_ENC 1
+
 module user_project_wrapper #(
     parameter BITS = 32
 )(
@@ -177,10 +194,9 @@ module top (
     wire PHASE_A2_H = io_out[15];
     wire PHASE_B1_H = io_out[16];
     wire PHASE_B2_H = io_out[17];
-    `ifdef QUAD_ENC
-        input [`QUAD_ENC:1] ENC_B,
-        input [`QUAD_ENC:1] ENC_A,
-    `endif
+    wire ENC_B = io_in[18];
+    wire ENC_A = io_in[19];
+
     //`ifdef BUFFER_DTR
     //    output BUFFER_DTR,
     //`endif
@@ -225,7 +241,7 @@ module top (
   reg enable;
 
     microstepper_top microstepper0(
-      .clk( spi_clock),
+      .clk(CLK),
       .resetn( resetn),
       .s_l ({PHASE_B2, PHASE_B1, PHASE_A2, PHASE_A1}),
       .s_h ({PHASE_B2_H, PHASE_B1_H, PHASE_A2_H, PHASE_A1_H}),
@@ -254,8 +270,8 @@ module top (
     (
       .resetn(reset),
       .clk(CLK),
-      .a(ENC_A[1]),
-      .b(ENC_B[1]),
+      .a(ENC_A),
+      .b(ENC_B),
       .faultn(encoder_fault),
       .count(encoder_count),
       .multiplier(encoder_multiplier));
