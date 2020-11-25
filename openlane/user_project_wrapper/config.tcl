@@ -12,6 +12,7 @@ set ::env(FP_PDN_CORE_RING) 1
 set ::env(PDN_CFG) $script_dir/pdn.tcl
 set ::env(FP_SIZING) absolute
 set ::env(DIE_AREA) "0 0 2920 3520"
+set ::env(PL_TARGET_DENSITY) 0.25
 set ::env(PL_OPENPHYSYN_OPTIMIZATIONS) 0
 set ::env(DIODE_INSERTION_STRATEGY) 0
 

@@ -119,7 +119,7 @@ module user_project_wrapper #(
     );
 
 endmodule	// user_project_wrapper
-`default_nettype wire
+
 
 `default_nettype none
 
