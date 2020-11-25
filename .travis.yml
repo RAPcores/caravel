@@ -24,7 +24,7 @@ branches:
 services:
     - docker
 
-os: 
+os:
   - linux
 
 jobs:

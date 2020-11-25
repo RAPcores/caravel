@@ -106,7 +106,6 @@ endmodule	// user_project_wrapper
 
 `default_nettype none
 
-`include "generated/board.v"
 `include "macro_params.v"
 `include "constants.v"
 `include "stepper.v"
@@ -115,11 +114,6 @@ endmodule	// user_project_wrapper
 `include "pwm.v"
 `include "microstepper/microstepper_top.v"
 //`include "microstepper2/stepper_top.v"
-
-// Hide PLLs from Formal
-`ifndef FORMAL
-  `include "generated/spi_pll.v"
-`endif
 
 module top (
     inout vdda1,	// User area 1 3.3V supply
@@ -163,74 +157,39 @@ module top (
     input   user_clock2
 );
 
-    input  CLK,
-    `ifdef LED
-        output wire [`LED:1] LED,
-    `endif
-    `ifdef tinyfpgabx
-        output USBPU,  // USB pull-up resistor
-    `endif
-    `ifdef SPI_INTERFACE
-        input  SCK,
-        input  CS,
-        input  COPI,
-        output CIPO,
-    `endif
-    `ifdef DUAL_HBRIDGE
-        output wire [`DUAL_HBRIDGE:1] PHASE_A1,  // Phase A
-        output wire [`DUAL_HBRIDGE:1] PHASE_A2,  // Phase A
-        output wire [`DUAL_HBRIDGE:1] PHASE_B1,  // Phase B
-        output wire [`DUAL_HBRIDGE:1] PHASE_B2,  // Phase B
-        output wire [`DUAL_HBRIDGE:1] VREF_A,  // VRef
-        output wire [`DUAL_HBRIDGE:1] VREF_B,  // VRef
-    `endif
-    `ifdef ULTIBRIDGE
-        output CHARGEPUMP,
-        input analog_cmp1,
-        output analog_out1,
-        input analog_cmp2,
-        output analog_out2,
-        output wire [`ULTIBRIDGE:1] PHASE_A1,  // Phase A
-        output wire [`ULTIBRIDGE:1] PHASE_A2,  // Phase A
-        output wire [`ULTIBRIDGE:1] PHASE_B1,  // Phase B
-        output wire [`ULTIBRIDGE:1] PHASE_B2,  // Phase B
-        output wire [`ULTIBRIDGE:1] PHASE_A1_H,  // Phase A
-        output wire [`ULTIBRIDGE:1] PHASE_A2_H,  // Phase A
-        output wire [`ULTIBRIDGE:1] PHASE_B1_H,  // Phase B
-        output wire [`ULTIBRIDGE:1] PHASE_B2_H,  // Phase B
-    `endif
+    assign CLK = wb_clk_i; // input
+    assign SCK = io_in[1]; // input
+    assign CS = io_in[2];
+    assign COPI = io_in[3];
+    assign CIPO = io_out[4];
+
+    //`ifdef ULTIBRIDGE
+    assign CHARGEPUMP = io_out[5];
+    assign analog_cmp1 = io_in[6];
+    assign analog_out1 = io_out[7];
+    assign analog_cmp2 = io_in[8];
+    assign analog_out2 = io_out[9];
+    assign PHASE_A1 = io_out[10];
+    assign PHASE_A2 = io_out[11];
+    assign PHASE_B1 = io_out[12];
+    assign PHASE_B2 = io_out[13];
+    assign PHASE_A1_H = io_out[14];
+    assign PHASE_A2_H = io_out[15];
+    assign PHASE_B1_H = io_out[16];
+    assign PHASE_B2_H = io_out[17];
     `ifdef QUAD_ENC
         input [`QUAD_ENC:1] ENC_B,
         input [`QUAD_ENC:1] ENC_A,
     `endif
-    `ifdef BUFFER_DTR
-        output BUFFER_DTR,
-    `endif
-    `ifdef MOVE_DONE
-        output MOVE_DONE,
-    `endif
-    `ifdef HALT
-        input HALT,
-    `endif
-
-  // Global Reset (TODO: Make input pin)
-  //wire reset;
-  //assign reset = 1;
-  `ifdef tinyfpgabx
-    // drive USB pull-up resistor to '0' to disable USB
-    assign USBPU = 0;
-  `endif
-
-  `ifndef FORMAL
-    // PLL for SPI Bus
-    wire spi_clock;
-    wire spipll_locked;
-    spi_pll spll (.clock_in(CLK),
-                  .clock_out(spi_clock),
-                  .locked(spipll_locked));
-  `elsif FORMAL
-    wire spi_clock = CLK;
-  `endif
+    //`ifdef BUFFER_DTR
+    //    output BUFFER_DTR,
+    //`endif
+    //`ifdef MOVE_DONE
+    //    output MOVE_DONE,
+    //`endif
+    //`ifdef HALT
+    //    input HALT,
+    //`endif
 
   // Word handler
   // The system operates on 64 bit little endian words
@@ -265,27 +224,11 @@ module top (
   wire dir;
   reg enable;
 
-  `ifdef DUAL_HBRIDGE
-  DualHBridge s0 (.phase_a1 (PHASE_A1[1]),
-                .phase_a2 (PHASE_A2[1]),
-                .phase_b1 (PHASE_B1[1]),
-                .phase_b2 (PHASE_B2[1]),
-                .vref_a (VREF_A[1]),
-                .vref_b (VREF_B[1]),
-                .step (step),
-                .dir (dir),
-                .enable (enable),
-                .microsteps (microsteps),
-                .current (current),
-                .microsteps (microsteps));
-  `endif
-
-  `ifdef ULTIBRIDGE
     microstepper_top microstepper0(
       .clk( spi_clock),
       .resetn( resetn),
-      .s_l ({PHASE_B2[1], PHASE_B1[1], PHASE_A2[1], PHASE_A1[1]}),
-      .s_h ({PHASE_B2_H[1], PHASE_B1_H[1], PHASE_A2_H[1], PHASE_A1_H[1]}),
+      .s_l ({PHASE_B2, PHASE_B1, PHASE_A2, PHASE_A1}),
+      .s_h ({PHASE_B2_H, PHASE_B1_H, PHASE_A2_H, PHASE_A1_H}),
       .analog_cmp1 (analog_cmp1),
       .analog_out1 (analog_out1),
       .analog_cmp2 (analog_cmp2),
